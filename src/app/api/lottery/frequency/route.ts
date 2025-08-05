@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DHLotteryScraper } from '@/lib/scraper/dhlottery-scraper';
 import { LotteryDataValidator } from '@/lib/scraper/data-validator';
 import { retryAsync } from '@/lib/scraper/retry-logic';
+import { lotteryCache } from '@/lib/cache/lottery-cache';
 import type { 
   LotteryResult, 
   FrequencyApiResponse, 
@@ -47,6 +48,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // 1단계: 캐시에서 조회
+    const cachedFrequency = await lotteryCache.getFrequency(rounds, analysisType);
+    if (cachedFrequency) {
+      console.log(`🚀 캐시에서 빈도 분석 반환: ${rounds}회차, type=${analysisType}`);
+      
+      const response: FrequencyApiResponse = {
+        success: true,
+        data: cachedFrequency,
+        meta: {
+          analyzedRounds: rounds,
+          analysisType: analysisType
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      return NextResponse.json(response);
+    }
+
+    // 2단계: 캐시 미스 시 스크래핑
+    console.log('💾 캐시 미스 - 새로운 빈도 분석 시작');
+
     let results: LotteryResult[];
     
     if (analysisType === 'comparative') {
@@ -69,6 +91,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // 3단계: 빈도 분석 수행
     let frequencyAnalysis;
     
     switch (analysisType) {
@@ -85,7 +108,10 @@ export async function GET(request: NextRequest) {
         frequencyAnalysis = analyzeRecentFrequency(validResults.slice(0, rounds));
     }
 
-    console.log(`✅ 로또 빈도 분석 완료: ${analysisType} 타입, ${validResults.length}회차 기반`);
+    // 분석 결과를 캐시에 저장
+    await lotteryCache.setFrequency(frequencyAnalysis, rounds, analysisType);
+
+    console.log(`✅ 로또 빈도 분석 및 캐시 저장 완료: ${analysisType} 타입, ${validResults.length}회차 기반`);
 
     const response: FrequencyApiResponse = {
       success: true,

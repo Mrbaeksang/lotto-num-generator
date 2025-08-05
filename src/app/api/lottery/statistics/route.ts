@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DHLotteryScraper } from '@/lib/scraper/dhlottery-scraper';
 import { LotteryDataValidator } from '@/lib/scraper/data-validator';
 import { retryAsync } from '@/lib/scraper/retry-logic';
+import { lotteryCache } from '@/lib/cache/lottery-cache';
 import type { LotteryResult, StatisticsApiResponse, NumberStatistics, StatisticsAnalysis } from '@/types/lottery';
 
 // 타입은 이제 lottery.ts에서 가져옴
@@ -30,6 +31,33 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 1단계: 캐시에서 조회
+    const cachedStats = await lotteryCache.getStatistics(rounds, includeAnalysis);
+    if (cachedStats) {
+      console.log(`🚀 캐시에서 통계 분석 반환: ${rounds}회차, analysis=${includeAnalysis}`);
+      
+      const response: StatisticsApiResponse = {
+        success: true,
+        data: {
+          ...cachedStats,
+          meta: {
+            analyzedRounds: rounds,
+            dateRange: {
+              from: '',
+              to: ''
+            },
+            totalNumbers: 45
+          }
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      return NextResponse.json(response);
+    }
+
+    // 2단계: 캐시 미스 시 스크래핑
+    console.log('💾 캐시 미스 - 새로운 통계 분석 시작');
 
     const results = await retryAsync(
       async () => {
@@ -65,7 +93,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 번호별 통계 계산
+    // 3단계: 번호별 통계 계산
     const numberStats = calculateNumberStatistics(validResults);
     
     // 추가 분석 (옵션)
@@ -74,13 +102,19 @@ export async function GET(request: NextRequest) {
       analysis = performStatisticalAnalysis(numberStats, validResults);
     }
 
-    console.log(`✅ 로또 통계 분석 완료: ${validResults.length}회차 데이터 기반`);
+    // 계산된 통계를 캐시에 저장
+    const statsData = {
+      numberStatistics: numberStats,
+      analysis: analysis
+    };
+    await lotteryCache.setStatistics(statsData, rounds, includeAnalysis);
+
+    console.log(`✅ 로또 통계 분석 및 캐시 저장 완료: ${validResults.length}회차 데이터 기반`);
 
     const response: StatisticsApiResponse = {
       success: true,
       data: {
-        numberStatistics: numberStats,
-        analysis: analysis,
+        ...statsData,
         meta: {
           analyzedRounds: validResults.length,
           dateRange: {

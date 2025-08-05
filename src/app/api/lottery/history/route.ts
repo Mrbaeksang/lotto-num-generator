@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DHLotteryScraper } from '@/lib/scraper/dhlottery-scraper';
 import { LotteryDataValidator } from '@/lib/scraper/data-validator';
 import { retryAsync } from '@/lib/scraper/retry-logic';
+import { lotteryCache } from '@/lib/cache/lottery-cache';
 import type { HistoryApiResponse } from '@/types/lottery';
 
 /**
@@ -55,6 +56,38 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // 1단계: 캐시에서 조회
+    const cachedResults = await lotteryCache.getHistory(count, startRound || undefined, endRound || undefined);
+    if (cachedResults) {
+      console.log(`🚀 캐시에서 로또 이력 반환: ${cachedResults.length}개 회차`);
+      
+      // 캐시된 데이터로 응답 생성
+      const freshnessCheck = LotteryDataValidator.checkDataFreshness(cachedResults);
+      const completenessCheck = LotteryDataValidator.checkDataCompleteness(cachedResults);
+
+      const response: HistoryApiResponse = {
+        success: true,
+        data: cachedResults,
+        meta: {
+          analyzedRounds: cachedResults.length,
+          dateRange: cachedResults.length > 0 ? {
+            from: cachedResults[cachedResults.length - 1].date,
+            to: cachedResults[0].date
+          } : undefined,
+          qualityCheck: {
+            dataFreshness: freshnessCheck.isFresh ? 'fresh' : 'stale',
+            completeness: completenessCheck.isComplete ? 100 : Math.round((1 - completenessCheck.missingRounds.length / completenessCheck.totalRounds) * 100)
+          }
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      return NextResponse.json(response);
+    }
+
+    // 2단계: 캐시 미스 시 스크래핑
+    console.log('💾 캐시 미스 - 새로운 이력 데이터 스크래핑 시작');
+
     const results = await retryAsync(
       async () => {
         const scraper = new DHLotteryScraper();
@@ -85,14 +118,17 @@ export async function GET(request: NextRequest) {
       'lottery history fetch'
     );
 
-    // 데이터 검증 및 정리
+    // 3단계: 데이터 검증, 정리 및 캐시 저장
     const validResults = LotteryDataValidator.validateAndCleanResults(results);
+    
+    // 검증된 데이터를 캐시에 저장
+    await lotteryCache.setHistory(validResults, count, startRound || undefined, endRound || undefined);
     
     // 데이터 신선도 및 완전성 체크
     const freshnessCheck = LotteryDataValidator.checkDataFreshness(validResults);
     const completenessCheck = LotteryDataValidator.checkDataCompleteness(validResults);
 
-    console.log(`✅ 로또 이력 조회 성공: ${validResults.length}개 회차`);
+    console.log(`✅ 로또 이력 조회 및 캐시 저장 성공: ${validResults.length}개 회차`);
 
     const response: HistoryApiResponse = {
       success: true,
