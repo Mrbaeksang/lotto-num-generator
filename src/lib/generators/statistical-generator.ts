@@ -190,7 +190,7 @@ export class StatisticalGenerator {
     const ranges = { low: 0, mid: 0, high: 0 };
 
     // 구간 균형을 맞추면서 선택
-    for (const [number, score] of sorted) {
+    for (const [number] of sorted) {
       if (selected.length >= count) break;
       
       const range = this.getNumberRange(number);

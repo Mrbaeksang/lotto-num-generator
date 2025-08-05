@@ -129,7 +129,7 @@ export class IntuitiveGenerator {
         this.addGuidedCandidates(candidates, context);
         break;
       case 'systematic':
-        this.addSystematicCandidates(candidates, context);
+        this.addSystematicCandidates(candidates);
         break;
       case 'balanced':
       default:
@@ -167,7 +167,7 @@ export class IntuitiveGenerator {
     seedNumbers.forEach(num => candidates.add(num));
   }
 
-  private addSystematicCandidates(candidates: Set<number>, context: IntuitiveContext): void {
+  private addSystematicCandidates(candidates: Set<number>): void {
     // 체계적인 분포
     const ranges = [
       { min: 1, max: 9 },   // 낮은 범위
