@@ -1,146 +1,275 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
-
+/* 네오브루탈리즘 CSS 변수 */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* 네오브루탈리즘 색상 팔레트 */
+  --primary: #FF3366;      /* 강렬한 핑크 */
+  --secondary: #0033CC;    /* 진한 블루 */ 
+  --accent: #FFCC00;       /* 밝은 노랑 */
+  --success: #00CC66;      /* 생생한 그린 */
+  --warning: #FF6600;      /* 주황 */
+  --error: #CC0000;        /* 빨강 */
+  --black: #000000;        /* 순수 검정 */
+  --white: #FFFFFF;        /* 순수 흰색 */
+  
+  /* 그림자 설정 */
+  --shadow-brutal: 6px 6px 0px var(--black);
+  --shadow-brutal-hover: 4px 4px 0px var(--black);
+  --shadow-brutal-card: 8px 8px 0px var(--black);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
+/* 기본 reset 및 네오브루탈리즘 적용 */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply box-border;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--white);
+    color: var(--black);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
   }
 }
 
-/* Glassmorphism 스타일 */
-.glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+/* 네오브루탈리즘 기본 스타일 */
+.neo-brutal {
+  border: 4px solid var(--black);
+  border-radius: 0;
+  box-shadow: var(--shadow-brutal);
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: all 0.1s ease;
 }
 
-.glass-dark {
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+/* 버튼 스타일 */
+.neo-button {
+  @apply neo-brutal;
+  padding: 16px 24px;
+  cursor: pointer;
+  color: var(--white);
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.5px;
 }
 
-/* 그라디언트 배경 */
-.gradient-bg {
-  background: linear-gradient(135deg, 
-    #667eea 0%, 
-    #764ba2 50%, 
-    #f093fb 100%
-  );
+.neo-button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-brutal-hover);
+}
+
+.neo-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 2px 2px 0px var(--black);
+}
+
+.neo-button.bg-primary {
+  background: var(--primary);
+}
+
+.neo-button.bg-secondary {
+  background: var(--secondary);
+}
+
+.neo-button.bg-accent {
+  background: var(--accent);
+  color: var(--black);
+}
+
+.neo-button.bg-success {
+  background: var(--success);
+}
+
+.neo-button.bg-warning {
+  background: var(--warning);
+}
+
+.neo-button.bg-error {
+  background: var(--error);
+}
+
+.neo-button.bg-gray-300 {
+  background: #d1d5db;
+  color: var(--black);
+}
+
+/* 카드 스타일 */
+.neo-card {
+  @apply neo-brutal;
+  background: var(--white);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-brutal-card);
+}
+
+.neo-card.bg-accent\/20 {
+  background: color-mix(in srgb, var(--accent) 20%, var(--white));
+}
+
+.neo-card.bg-error\/20 {
+  background: color-mix(in srgb, var(--error) 20%, var(--white));
+}
+
+.neo-card.bg-success\/20 {
+  background: color-mix(in srgb, var(--success) 20%, var(--white));
+}
+
+.neo-card.bg-gray-50 {
+  background: #f9fafb;
+}
+
+/* 입력 필드 스타일 */
+.neo-input {
+  @apply neo-brutal;
+  padding: 12px 16px;
+  background: var(--white);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.neo-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-brutal), 0 0 0 2px var(--primary);
+}
+
+/* 로또 번호 공 스타일 */
+.lotto-ball {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 4px solid var(--black);
+  box-shadow: var(--shadow-brutal-hover);
+  font-weight: 900;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+}
+
+.lotto-ball.bg-primary {
+  background: var(--primary);
+}
+
+.lotto-ball.bg-secondary {
+  background: var(--secondary);
+}
+
+.lotto-ball.bg-accent {
+  background: var(--accent);
+  color: var(--black);
+  text-shadow: none;
+}
+
+.lotto-ball.bg-success {
+  background: var(--success);
+}
+
+.lotto-ball.bg-warning {
+  background: var(--warning);
+}
+
+.lotto-ball.bg-error {
+  background: var(--error);
+}
+
+.lotto-ball.bg-purple-500 {
+  background: #8b5cf6;
+}
+
+.lotto-ball.bg-pink-500 {
+  background: #ec4899;
+}
+
+/* 텍스트 색상 유틸리티 */
+.text-error {
+  color: var(--error);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+/* 애니메이션 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes bounce-brutal {
+  0%, 100% { 
+    transform: translateY(0) scale(1);
+    box-shadow: var(--shadow-brutal);
+  }
+  50% { 
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: var(--shadow-brutal-card);
+  }
+}
+
+.animate-bounce-brutal {
+  animation: bounce-brutal 1s ease-in-out infinite;
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+  .neo-card {
+    padding: 16px;
+    box-shadow: 4px 4px 0px var(--black);
+  }
+  
+  .neo-button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  
+  .lotto-ball {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+
+/* 그리드 시스템 강화 */
+.neo-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.neo-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.neo-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.neo-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 768px) {
+  .neo-grid-2,
+  .neo-grid-3,
+  .neo-grid-4 {
+    grid-template-columns: 1fr;
+  }
 }
