@@ -8,12 +8,17 @@ interface NumberGeneratorProps {
     lunarMonth: number;
     solarDate: string;
   };
-  onGenerate: (results: any) => void;
+  onGenerate: (results: {
+    success: boolean;
+    data?: {
+      results: Record<string, { numbers: number[]; method: string; description: string; }>;
+      meta: { lunarInfo: { day: number; month: number; }; };
+    };
+  }) => void;
 }
 
 export default function NumberGenerator({ dateInfo, onGenerate }: NumberGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
 
   const methods = [
     { id: 'hot', name: '🔥 핫넘버', desc: '최근 가장 많이 나온 번호들' },

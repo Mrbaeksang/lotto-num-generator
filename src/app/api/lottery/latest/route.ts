@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { fetchLotteryResult, calculateCurrentRound } from '@/lib/lottery-api';
 
 /**
  * GET /api/lottery/latest
  * 최신 로또 당첨번호 조회
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🔍 최신 로또 당첨번호 요청');
 

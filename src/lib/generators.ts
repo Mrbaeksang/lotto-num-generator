@@ -148,7 +148,6 @@ export function generateBalanced(): GeneratedNumbers {
   
   // 홀짝 균형 조정 (3:3 목표)
   const odds = numbers.filter(n => n % 2 === 1);
-  const evens = numbers.filter(n => n % 2 === 0);
   
   if (odds.length > 3) {
     // 홀수가 많으면 짝수로 교체

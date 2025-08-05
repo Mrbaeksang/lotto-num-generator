@@ -9,7 +9,9 @@
       "mcp__playwright__browser_evaluate",
       "WebFetch(domain:dhlottery.co.kr)",
       "Bash(rm:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(TASKKILL /F /PID 46868)",
+      "Bash(cmd /c:*)"
     ],
     "deny": []
   }

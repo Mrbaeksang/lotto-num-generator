@@ -12,14 +12,26 @@ export default function Home() {
     solarDate: string;
   } | null>(null);
   
-  const [generationResults, setGenerationResults] = useState<any>(null);
+  const [generationResults, setGenerationResults] = useState<{
+    success: boolean;
+    data?: {
+      results: Record<string, { numbers: number[]; method: string; description: string; }>;
+      meta: { lunarInfo: { day: number; month: number; }; };
+    };
+  } | null>(null);
 
   const handleDateSelect = (selectedDate: { lunarDay: number; lunarMonth: number; solarDate: string }) => {
     setDateInfo(selectedDate);
     setGenerationResults(null); // 날짜 변경시 결과 초기화
   };
 
-  const handleGenerate = (results: any) => {
+  const handleGenerate = (results: {
+    success: boolean;
+    data?: {
+      results: Record<string, { numbers: number[]; method: string; description: string; }>;
+      meta: { lunarInfo: { day: number; month: number; }; };
+    };
+  }) => {
     setGenerationResults(results);
   };
 
