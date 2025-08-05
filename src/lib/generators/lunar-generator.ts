@@ -32,7 +32,7 @@ export class LunarGenerator {
       useSpecialDays = true
     } = options;
 
-    const lunarInfo = this.lunarCalendar.getTodayLunarInfo();
+    const lunarInfo = LunarCalendar.getTodayLunarInfo();
     const numbers = new Set<number>();
 
     // 1. 간지 기반 번호 (천간 + 지지)
@@ -43,7 +43,7 @@ export class LunarGenerator {
 
     // 2. 띠 기반 번호
     if (useZodiac && numbers.size < 6) {
-      const zodiacNumbers = this.getZodiacNumbers(lunarInfo.zodiac);
+      const zodiacNumbers = this.getZodiacNumbers(lunarInfo.zodiac.animal);
       zodiacNumbers.forEach(num => numbers.add(num));
     }
 
@@ -77,13 +77,13 @@ export class LunarGenerator {
     const numbers: number[] = [];
     
     // 천간(天干) 번호 (1-10)
-    const tianGanIndex = this.getTianGanIndex(lunarInfo.ganZhi);
+    const tianGanIndex = this.getTianGanIndex(lunarInfo.ganZhi.year);
     if (tianGanIndex > 0) {
       numbers.push(Math.min(45, tianGanIndex * 4)); // 천간 * 4로 스케일링
     }
 
     // 지지(地支) 번호 (1-12)
-    const diZhiIndex = this.getDiZhiIndex(lunarInfo.ganZhi);
+    const diZhiIndex = this.getDiZhiIndex(lunarInfo.ganZhi.year);
     if (diZhiIndex > 0) {
       numbers.push(Math.min(45, diZhiIndex * 3 + 5)); // 지지 * 3 + 5로 스케일링
     }
@@ -219,7 +219,7 @@ export class LunarGenerator {
    * 오늘의 음력 정보 기반 추천 이유 생성
    */
   getRecommendationReason(): string {
-    const lunarInfo = this.lunarCalendar.getTodayLunarInfo();
+    const lunarInfo = LunarCalendar.getTodayLunarInfo();
     const reasons: string[] = [];
 
     reasons.push(`${lunarInfo.ganZhi}년의 기운을 담은 번호`);

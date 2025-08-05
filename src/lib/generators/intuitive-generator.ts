@@ -49,9 +49,11 @@ export class IntuitiveGenerator {
 
   private loadHistory(): void {
     try {
-      const stored = localStorage.getItem('intuitive-generator-history');
-      if (stored) {
-        this.generationHistory = JSON.parse(stored);
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('intuitive-generator-history');
+        if (stored) {
+          this.generationHistory = JSON.parse(stored);
+        }
       }
     } catch (error) {
       console.warn('Failed to load intuitive generator history:', error);
@@ -60,10 +62,12 @@ export class IntuitiveGenerator {
 
   private saveHistory(): void {
     try {
-      localStorage.setItem(
-        'intuitive-generator-history',
-        JSON.stringify(this.generationHistory.slice(-this.MAX_HISTORY))
-      );
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          'intuitive-generator-history',
+          JSON.stringify(this.generationHistory.slice(-this.MAX_HISTORY))
+        );
+      }
     } catch (error) {
       console.warn('Failed to save intuitive generator history:', error);
     }
@@ -532,7 +536,9 @@ export class IntuitiveGenerator {
   clearHistory(): void {
     this.generationHistory = [];
     try {
-      localStorage.removeItem('intuitive-generator-history');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('intuitive-generator-history');
+      }
     } catch (error) {
       console.warn('Failed to clear intuitive generator history:', error);
     }
