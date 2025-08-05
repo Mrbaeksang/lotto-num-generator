@@ -25,15 +25,15 @@ export async function POST(request: NextRequest) {
     // 최근 데이터 가져오기 (통계 분석용)
     const recentResults = await fetchRecentResults(analysisCount);
     
-    // 8가지 심리적으로 매력적인 방식으로 번호 생성
+    // 8가지 심리적으로 매력적인 방식으로 번호 생성 (모두 실제 데이터 기반)
     const results = {
       hot: generateHot(recentResults),
       cold: generateCold(recentResults),
       trend: generateTrend(recentResults),
-      balanced: generateBalanced(),
-      personal: generatePersonal(lunarDay || 1, lunarMonth || 1),
+      balanced: generateBalanced(recentResults),
+      personal: generatePersonal(lunarDay || 1, lunarMonth || 1, recentResults),
       weekday: generateWeekday(recentResults),
-      seasonal: generateSeasonal(),
+      seasonal: generateSeasonal(recentResults),
       contrarian: generateContrarian(recentResults)
     };
 

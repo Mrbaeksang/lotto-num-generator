@@ -5,6 +5,12 @@ export interface LotteryResult {
   date: string;
   numbers: [number, number, number, number, number, number];
   bonus: number;
+  prize?: {
+    first?: number;
+    firstWinners?: number;
+    second?: number;
+    secondWinners?: number;
+  };
 }
 
 /**
@@ -58,7 +64,7 @@ export async function fetchLotteryResult(round: number): Promise<LotteryResult |
     const html = await response.text();
     
     // HTML에서 당첨번호 파싱
-    const result = parseHtmlResponse(html, round);
+    const result = parseHtmlResponse(html);
     return result;
 
   } catch (error) {
@@ -70,7 +76,7 @@ export async function fetchLotteryResult(round: number): Promise<LotteryResult |
 /**
  * HTML 응답에서 당첨번호 파싱
  */
-function parseHtmlResponse(html: string, expectedRound: number): LotteryResult | null {
+function parseHtmlResponse(html: string): LotteryResult | null {
   try {    
     // meta description에서 로또 정보 추출 (EUC-KR 인코딩 문제 회피)
     // 패턴: 회차 번호는 정확히 4자리로 가정 (1100번대), 당첨번호는 쉼표로 구분된 6개 숫자

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { RoundSelector } from '@/components/forms/round-selector';
 
 interface NumberGeneratorProps {
   dateInfo: {
@@ -19,6 +20,7 @@ interface NumberGeneratorProps {
 
 export default function NumberGenerator({ dateInfo, onGenerate }: NumberGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [analysisRounds, setAnalysisRounds] = useState(50); // 기본값: 50회차
 
   const methods = [
     { id: 'hot', name: '🔥 핫넘버', desc: '최근 가장 많이 나온 번호들' },
@@ -41,7 +43,7 @@ export default function NumberGenerator({ dateInfo, onGenerate }: NumberGenerato
         body: JSON.stringify({
           lunarDay: dateInfo.lunarDay,
           lunarMonth: dateInfo.lunarMonth,
-          analysisCount: 20
+          analysisCount: analysisRounds
         })
       });
       
@@ -62,6 +64,16 @@ export default function NumberGenerator({ dateInfo, onGenerate }: NumberGenerato
       <div className="neo-card bg-accent/20 mb-6">
         <p className="font-bold">📅 선택된 날짜: {dateInfo.solarDate}</p>
         <p className="font-bold">🌙 음력: {dateInfo.lunarMonth}월 {dateInfo.lunarDay}일</p>
+      </div>
+
+      {/* 분석 회차수 선택 */}
+      <div className="mb-6">
+        <RoundSelector
+          value={analysisRounds}
+          onChange={setAnalysisRounds}
+          label="📊 분석 데이터 범위"
+          description="몇 회차의 과거 데이터로 분석할지 선택하세요"
+        />
       </div>
 
       {/* 생성 방식 선택 */}
