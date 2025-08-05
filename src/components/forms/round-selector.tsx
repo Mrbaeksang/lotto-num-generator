@@ -64,7 +64,7 @@ export function RoundSelector({
           <button
             key={rounds}
             onClick={() => handlePresetClick(rounds)}
-            className={`neo-button py-2 px-3 text-sm transition-all ${
+            className={`neo-button py-2 px-2 text-sm whitespace-nowrap transition-all ${
               !isCustomMode && value === rounds
                 ? 'bg-primary text-white'
                 : 'bg-gray-300 text-black hover:bg-gray-400'
@@ -77,8 +77,7 @@ export function RoundSelector({
 
       {/* 커스텀 입력 */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-black">직접 입력</span>
+        <div className="flex items-center justify-end">
           <button
             onClick={toggleCustomMode}
             className={`neo-button py-1 px-3 text-xs transition-all ${
@@ -87,7 +86,7 @@ export function RoundSelector({
                 : 'bg-gray-300 text-black hover:bg-gray-400'
             }`}
           >
-            {isCustomMode ? '활성' : '비활성'}
+            {isCustomMode ? '직접 입력 중' : '직접 입력'}
           </button>
         </div>
 

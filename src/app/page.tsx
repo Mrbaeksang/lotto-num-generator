@@ -37,74 +37,78 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 헤더 */}
-      <header className="neo-card bg-primary text-white text-center mb-8">
-        <h1 className="text-4xl font-black mb-4 uppercase">
+      {/* 컴팩트 헤더 */}
+      <header className="neo-card bg-white text-black text-center mb-6 py-4">
+        <h1 className="text-3xl font-black mb-2 uppercase">
           🎯 로또 번호 생성기
         </h1>
-        <p className="text-xl font-bold">
+        <p className="text-sm font-bold text-gray-700">
           🌙 전통 음력 × 📊 실시간 데이터 = ✨ 당신만의 로또 번호!
         </p>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 space-y-8">
-        {/* Step 1: 날짜 선택 */}
-        <div className="neo-grid">
-          <DatePicker onDateSelect={handleDateSelect} />
-        </div>
+      <div className="max-w-7xl mx-auto px-4">
+        {/* 2단 레이아웃: 왼쪽 입력, 오른쪽 결과 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          
+          {/* 왼쪽: 입력 섹션 */}
+          <div className="space-y-4">
+            {/* 진행 상태 표시 */}
+            <div className="neo-card bg-accent text-black text-center py-3">
+              <div className="flex justify-center items-center gap-2 text-sm font-bold">
+                <div className={`flex items-center gap-1 ${dateInfo ? 'text-success' : 'text-black'}`}>
+                  <span>{dateInfo ? '✅' : '1️⃣'}</span>
+                  <span>날짜선택</span>
+                </div>
+                <span>→</span>
+                <div className={`flex items-center gap-1 ${dateInfo ? 'text-black' : 'text-gray-400'}`}>
+                  <span>2️⃣</span>
+                  <span>번호생성</span>
+                </div>
+                <span>→</span>
+                <div className={`flex items-center gap-1 ${generationResults ? 'text-success' : 'text-gray-400'}`}>
+                  <span>{generationResults ? '✅' : '3️⃣'}</span>
+                  <span>결과확인</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Step 1: 날짜 선택 */}
+            <DatePicker onDateSelect={handleDateSelect} />
 
-        {/* Step 2: 번호 생성 (날짜 선택 후에만 표시) */}
-        {dateInfo && (
-          <div className="neo-grid">
-            <NumberGenerator 
-              dateInfo={dateInfo}
-              onGenerate={handleGenerate}
-            />
+            {/* Step 2: 번호 생성 (날짜 선택 후에만 표시) */}
+            {dateInfo && (
+              <NumberGenerator 
+                dateInfo={dateInfo}
+                onGenerate={handleGenerate}
+              />
+            )}
+            
+            {/* 하단 정보 */}
+            <div className="neo-card bg-gray-50 text-center py-3">
+              <p className="font-bold text-sm mb-1">🎲 8가지 심리적 매력 방식</p>
+              <p className="text-xs text-gray-600">핫넘버•콜드넘버•상승세•균형조합•개인특화•요일분석•계절가중•역발상</p>
+            </div>
           </div>
-        )}
 
-        {/* Step 3: 결과 표시 (생성 후에만 표시) */}
-        {generationResults && (
-          <div className="neo-grid">
-            <ResultDisplay results={generationResults} />
-          </div>
-        )}
-
-        {/* 진행 상태 표시 */}
-        <div className="neo-card bg-gray-50 text-center">
-          <div className="flex justify-center items-center gap-4">
-            <div className={`flex items-center gap-2 ${dateInfo ? 'text-success' : 'text-gray-400'}`}>
-              <span className="text-2xl">{dateInfo ? '✅' : '1️⃣'}</span>
-              <span className="font-bold">날짜 선택</span>
-            </div>
-            
-            <div className="text-3xl text-gray-300">→</div>
-            
-            <div className={`flex items-center gap-2 ${dateInfo ? 'text-black' : 'text-gray-400'}`}>
-              <span className="text-2xl">{dateInfo ? '2️⃣' : '2️⃣'}</span>
-              <span className="font-bold">번호 생성</span>
-            </div>
-            
-            <div className="text-3xl text-gray-300">→</div>
-            
-            <div className={`flex items-center gap-2 ${generationResults ? 'text-success' : 'text-gray-400'}`}>
-              <span className="text-2xl">{generationResults ? '✅' : '3️⃣'}</span>
-              <span className="font-bold">결과 확인</span>
-            </div>
+          {/* 오른쪽: 결과 섹션 */}
+          <div className="space-y-4">
+            {generationResults ? (
+              <ResultDisplay results={generationResults} />
+            ) : (
+              <div className="neo-card bg-gray-50 text-center py-16">
+                <div className="text-6xl mb-4">🎰</div>
+                <h3 className="text-xl font-black mb-2">결과 대기 중</h3>
+                <p className="text-gray-600">날짜를 선택하고 번호를 생성해주세요!</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="mt-16 py-8 text-center text-gray-600">
-        <div className="neo-card bg-gray-50">
-          <p className="font-bold mb-2">🎲 8가지 심리적 매력 방식</p>
-          <p className="text-sm">핫넘버 • 콜드넘버 • 상승세 • 균형조합 • 개인특화 • 요일분석 • 계절가중 • 역발상</p>
-          <div className="mt-4 pt-4 border-t-4 border-black text-xs">
-            <p>※ 이 앱에서 생성된 번호는 재미와 참고용입니다</p>
-            <p>※ 공식 정보는 동행복권 공식 사이트에서 확인하세요</p>
-          </div>
-        </div>
+      {/* 간단한 Footer */}
+      <footer className="mt-8 py-4 text-center text-xs text-gray-500">
+        <p>※ 재미와 참고용 • 공식 정보는 동행복권 공식 사이트 확인</p>
       </footer>
     </div>
   );
