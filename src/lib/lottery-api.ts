@@ -14,21 +14,123 @@ export interface LotteryResult {
 }
 
 /**
- * 날짜 기준으로 현재 로또 회차 계산
- * 1회차: 2002-12-07 (토요일)
- * 매주 토요일 추첨
+ * 동행복권 웹사이트에서 실제 최신 회차를 자동으로 가져오기
+ * 캐싱을 통해 성능 최적화 (1시간 TTL)
  */
-export function calculateCurrentRound(): number {
-  // 현재 최신 회차를 기준으로 계산 (2025-08-05 기준 1183회차)
-  // 2025-08-02이 1183회차였으므로 오늘(2025-08-05)은 1183회차
+let cachedCurrentRound: { round: number; timestamp: number } | null = null;
+const CACHE_TTL = 60 * 60 * 1000; // 1시간
+
+export async function getCurrentRound(): Promise<number> {
+  // 캐시 확인
+  if (cachedCurrentRound && (Date.now() - cachedCurrentRound.timestamp) < CACHE_TTL) {
+    console.log(`🎯 캐시된 현재 회차 사용: ${cachedCurrentRound.round}`);
+    return cachedCurrentRound.round;
+  }
+
+  try {
+    console.log('🔍 동행복권에서 최신 회차 조회 중...');
+    
+    // 최신 당첨결과 페이지에서 현재 회차 추출
+    const response = await fetch('https://dhlottery.co.kr/gameResult.do?method=byWin', {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Cache-Control': 'no-cache'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const html = await response.text();
+    
+    // HTML에서 최신 회차 번호 추출
+    // 다양한 패턴으로 회차 번호 찾기
+    const patterns = [
+      /제\s*(\d{4})\s*회/,                    // 제 1183 회
+      /(\d{4})\s*회차/,                       // 1183 회차  
+      /content="[^\"]*(\\d{4})[^\"]*/,        // meta description
+      /drwNo['"]\s*:\s*['"]*(\d{4})/,        // JavaScript drwNo
+      /현재\s*(\d{4})\s*회/                   // 현재 1183 회
+    ];
+
+    let currentRound = 0;
+    
+    for (const pattern of patterns) {
+      const match = html.match(pattern);
+      if (match) {
+        const round = parseInt(match[1]);
+        if (round > 0 && round < 9999) { // 합리적인 범위 체크
+          currentRound = round;
+          console.log(`✅ 회차 추출 성공: ${currentRound}회 (패턴: ${pattern})`);
+          break;
+        }
+      }
+    }
+
+    if (currentRound === 0) {
+      // 패턴 매칭 실패시 계산식 폴백
+      console.log('⚠️ HTML 패턴 매칭 실패, 계산식으로 폴백');
+      currentRound = calculateCurrentRoundByDate();
+    }
+
+    // 캐시 저장
+    cachedCurrentRound = {
+      round: currentRound,
+      timestamp: Date.now()
+    };
+
+    console.log(`🎯 최종 현재 회차: ${currentRound}`);
+    return currentRound;
+
+  } catch (error) {
+    console.error('❌ 최신 회차 조회 실패:', error);
+    console.log('⚠️ 날짜 계산식으로 폴백');
+    
+    // 에러시 날짜 기반 계산으로 폴백
+    const fallbackRound = calculateCurrentRoundByDate();
+    
+    // 폴백 결과도 짧은 시간 캐싱 (5분)
+    cachedCurrentRound = {
+      round: fallbackRound,
+      timestamp: Date.now() - (CACHE_TTL - 5 * 60 * 1000) // 5분 후 만료
+    };
+    
+    return fallbackRound;
+  }
+}
+
+/**
+ * 날짜 기준으로 현재 로또 회차 계산 (폴백용)
+ * 1회차: 2002-12-07 (토요일), 매주 토요일 추첨
+ */
+function calculateCurrentRoundByDate(): number {
   const today = new Date();
-  const aug2_2025 = new Date('2025-08-02'); // 1183회차 추첨일
+  const firstDraw = new Date('2002-12-07'); // 1회차 추첨일
   
-  // 토요일 기준으로 계산
-  const daysDiff = Math.floor((today.getTime() - aug2_2025.getTime()) / (1000 * 60 * 60 * 24));
+  // 경과 일수 계산
+  const timeDiff = today.getTime() - firstDraw.getTime();
+  const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  
+  // 주차 계산 (매주 토요일)
   const weeksPassed = Math.floor(daysDiff / 7);
   
-  return 1183 + weeksPassed;
+  // 현재 요일이 토요일 이후면 다음 회차로 간주
+  const currentDay = today.getDay(); // 0=일요일, 6=토요일
+  const adjustment = currentDay === 0 ? 1 : 0; // 일요일이면 이미 추첨 완료
+  
+  return 1 + weeksPassed + adjustment;
+}
+
+/**
+ * 하위 호환성을 위한 동기 함수 (레거시)
+ * @deprecated getCurrentRound() 비동기 함수 사용 권장
+ */
+export function calculateCurrentRound(): number {
+  return calculateCurrentRoundByDate();
 }
 
 /**
@@ -126,25 +228,32 @@ function calculateDrawDate(round: number): string {
 }
 
 /**
- * 최근 N회차 데이터 가져오기
+ * 최근 N회차 데이터 가져오기 (동적 현재 회차 사용)
  */
 export async function fetchRecentResults(count: number): Promise<LotteryResult[]> {
-  const currentRound = calculateCurrentRound();
-  console.log(`🎯 계산된 현재 회차: ${currentRound}`);
+  const currentRound = await getCurrentRound(); // 비동기로 실제 현재 회차 가져오기
+  console.log(`🎯 동적으로 조회된 현재 회차: ${currentRound}`);
   const results: LotteryResult[] = [];
   
   for (let i = 0; i < count; i++) {
     const round = currentRound - i;
     if (round < 1) break;
     
+    console.log(`📊 ${round}회차 데이터 조회 중... (${i + 1}/${count})`);
     const result = await fetchLotteryResult(round);
     if (result) {
       results.push(result);
+      console.log(`✅ ${round}회차 조회 성공: ${result.numbers.join(', ')} + ${result.bonus}`);
+    } else {
+      console.log(`❌ ${round}회차 조회 실패`);
     }
     
-    // API 부하 방지를 위한 지연
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // API 부하 방지를 위한 지연 (첫 번째 요청은 지연 없음)
+    if (i < count - 1) {
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
   }
   
+  console.log(`📈 총 ${results.length}개 회차 데이터 조회 완료`);
   return results;
 }

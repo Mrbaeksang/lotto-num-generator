@@ -65,6 +65,49 @@ export class LunarCalendar {
   }
 
   /**
+   * 윤달 계산 (19년 주기 메토닉 사이클 기반)
+   * 실제 음력 윤달은 복잡하지만, 대략적인 패턴으로 계산
+   */
+  private static calculateLeapMonth(year: number, currentMonth: number): { isLeapMonth: boolean; leapMonth?: number } {
+    // 메토닉 사이클: 19년마다 7개의 윤달
+    // 실제 윤달 발생 연도들을 기준으로 한 패턴
+    const leapYearPattern = [
+      // 2020년대
+      { year: 2023, month: 2 }, // 윤2월
+      { year: 2025, month: 6 }, // 윤6월  
+      { year: 2028, month: 5 }, // 윤5월
+      { year: 2031, month: 3 }, // 윤3월
+      
+      // 2030년대
+      { year: 2033, month: 11 }, // 윤11월
+      { year: 2036, month: 6 }, // 윤6월
+      { year: 2039, month: 5 }, // 윤5월
+      
+      // 2040년대  
+      { year: 2042, month: 2 }, // 윤2월
+      { year: 2044, month: 7 }, // 윤7월
+      { year: 2047, month: 5 }, // 윤5월
+    ];
+
+    // 현재 연도의 윤달 확인
+    const currentYearLeap = leapYearPattern.find(leap => leap.year === year);
+    
+    if (currentYearLeap) {
+      const isLeapMonth = currentMonth === currentYearLeap.month;
+      return {
+        isLeapMonth,
+        leapMonth: currentYearLeap.month
+      };
+    }
+
+    // 윤달이 없는 해
+    return {
+      isLeapMonth: false,
+      leapMonth: undefined
+    };
+  }
+
+  /**
    * 간단한 양력 -> 음력 변환 (근사치)
    * 실제 구현에서는 정확한 천문학적 계산이 필요하지만, 
    * 여기서는 데모용 간단한 변환을 사용
@@ -90,9 +133,8 @@ export class LunarCalendar {
       lunarDay += 29; // 음력 한 달 평균 29일
     }
 
-    // 윤달 계산 (간단한 근사치)
-    const isLeapMonth = month === 6 && year === 2025; // 2025년 윤6월
-    const leapMonth = isLeapMonth ? 6 : undefined;
+    // 윤달 계산 (동적 계산)
+    const { isLeapMonth, leapMonth } = this.calculateLeapMonth(year, lunarMonth);
 
     return {
       year: lunarYear,
